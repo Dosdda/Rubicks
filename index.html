@@ -1,447 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubiks timer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rubik’s Cube Timer</title>
+<link rel="icon" type="image/png" href="favicon.jpg">
 
-        body {
-            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #30364F;
-            height: 100vh;
-            display: flex;
-            flex-direction: row;
-            color: #ACBAC4;
-            overflow: hidden;
-            touch-action: manipulation;
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-        }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-        .header {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            font-weight: 500;
-        }
+body{
+    font-family: -apple-system, BlinkMacSystemFont, "Nunito", sans-serif;
+    background:#30364F;
+    color:#E1D9BC;
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    padding-left:env(safe-area-inset-left);
+    padding-right:env(safe-area-inset-right);
+}
 
-        .day-counter {
-            font-size: 16px;
-            color: #F0F0DB;
-        }
+.main-container{
+    display:flex;
+    width:100%;
+    height:100%;
+}
 
-        .main-container {
-            display: flex;
-            height: 100vh;
-            position: relative;
-        }
+.start-btn,.stop-btn{
+    width:25vw;
+    border:none;
+    font-size:26px;
+    font-weight:700;
+    letter-spacing:2px;
+    color:#30364F;
+}
 
-        .start-btn {
-            flex: 1;
-            height: 100vh;
-            border: none;
-            background: linear-gradient(135deg, #E1D9BC, #F0F0DB);
-            color: #30364F;
-            font-family: 'Nunito', sans-serif;
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            border-radius: 0 40px 40px 0;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            box-shadow: 4px 0 20px rgba(225, 217, 188, 0.3);
-        }
+.start-btn{background:#F0F0DB}
+.stop-btn{background:#ACBAC4}
 
-        .start-btn:active {
-            transform: scale(0.98);
-            box-shadow: 2px 0 10px rgba(225, 217, 188, 0.5);
-        }
+.center-panel{
+    flex:1;
+    background:rgba(48,54,79,0.95);
+    backdrop-filter:blur(20px);
+    margin:10px;
+    border-radius:30px;
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+}
 
-        .stop-btn {
-            flex: 1;
-            height: 100vh;
-            border: none;
-            background: linear-gradient(135deg, #ACBAC4, #F0F0DB);
-            color: #30364F;
-            font-family: 'Nunito', sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            border-radius: 40px 0 0 40px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            box-shadow: -4px 0 20px rgba(176, 186, 196, 0.3);
-        }
+.header{
+    text-align:center;
+    font-size:16px;
+    margin-bottom:10px;
+}
 
-        .stop-btn:active {
-            transform: scale(0.98);
-            box-shadow: -2px 0 10px rgba(176, 186, 196, 0.5);
-        }
+.time-display{
+    text-align:center;
+    font-size:64px;
+    margin:10px 0;
+    font-variant-numeric:tabular-nums;
+}
 
-        .center-panel {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 420px;
-            max-width: 400px;
-            height: 84vh;
-            background: rgba(48, 54, 79, 0.95);
-            backdrop-filter: blur(30px);
-            border-radius: 30px;
-            border: 1px solid rgba(225, 217, 188, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-            z-index: 20;
-        }
+.status,.stats{
+    text-align:center;
+    font-size:14px;
+    margin-bottom:6px;
+    color:#ACBAC4;
+}
 
-        .time-display {
-            font-size: 64px;
-            font-weight: 300;
-            letter-spacing: 3px;
-            font-variant-numeric: tabular-nums;
-            color: #E1D9BC;
-            text-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            margin-bottom: 10px;
-            line-height: 1.1;
-        }
+.lap-section{
+    flex:1;
+    overflow-y:auto;
+    margin-top:10px;
+}
 
-        .status {
-            font-size: 18px;
-            color: #ACBAC4;
-            font-weight: 400;
-            margin-bottom: 30px;
-        }
+.lap-item{
+    display:flex;
+    justify-content:space-between;
+    padding:10px;
+    margin-bottom:6px;
+    background:rgba(225,217,188,0.15);
+    border-radius:10px;
+}
 
-        .lap-section {
-            width: 100%;
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 10px;
-            scrollbar-width: thin;
-        }
+.calendar{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:4px;
+    font-size:11px;
+}
 
-        .lap-section::-webkit-scrollbar {
-            width: 6px;
-        }
+.calendar div{
+    padding:6px;
+    text-align:center;
+    border-radius:6px;
+    background:rgba(225,217,188,0.1);
+}
 
-        .lap-section::-webkit-scrollbar-thumb {
-            background: rgba(225, 217, 188, 0.4);
-            border-radius: 10px;
-        }
-
-
-        .lap-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #F0F0DB;
-            margin-bottom: 15px;
-            padding-left: 5px;
-        }
-
-        .lap-list {
-            list-style: none;
-        }
-
-        .lap-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            background: rgba(225, 217, 188, 0.15);
-            margin-bottom: 6px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-variant-numeric: tabular-nums;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(225, 217, 188, 0.2);
-            transition: all 0.2s ease;
-        }
-
-        .lap-item:hover {
-            background: rgba(225, 217, 188, 0.25);
-        }
-
-        .lap-number {
-            font-weight: 600;
-            color: #F0F0DB;
-            min-width: 25px;
-            font-size: 14px;
-        }
-
-        .lap-time {
-            flex: 1;
-            text-align: right;
-            color: #E1D9BC;
-            font-weight: 500;
-        }
-
-        .clear-btn {
-            position: absolute;
-            bottom: 25px;
-            right: 25px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(176, 186, 196, 0.4);
-            border: 2px solid #ACBAC4;
-            color: #ACBAC4;
-            font-size: 20px;
-            font-weight: 700;
-            backdrop-filter: blur(20px);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 30;
-        }
-
-        .clear-btn:hover {
-            background: rgba(225, 217, 188, 0.4);
-            border-color: #E1D9BC;
-            color: #E1D9BC;
-        }
-
-        .clear-btn:active {
-            transform: scale(0.9);
-        }
-
-        @media (max-width: 430px) {
-            .time-display {
-                font-size: 52px;
-                letter-spacing: 2px;
-            }
-            
-            .start-btn,
-            .stop-btn {
-                font-size: 24px;
-            }
-        }
-
-        @media (max-height: 700px) {
-            .center-panel {
-                height: 70%;
-                padding: 30px 20px;
-            }
-            
-            .time-display {
-                font-size: 48px;
-            }
-        }
-    </style>
+.calendar .best{
+    background:#E1D9BC;
+    color:#30364F;
+    font-weight:700;
+}
+</style>
 </head>
-<body>
-    <div class="header">
-        <div class="day-counter" id="dateDisplay"></div>
-    </div>
 
-    <div class="main-container">
-        <button class="start-btn" id="startBtn">START</button>
-        <button class="stop-btn" id="stopBtn">STOP</button>
-    </div>
+<body>
+<div class="main-container">
+    <button class="start-btn">START</button>
 
     <div class="center-panel">
-        <div>
-            <div class="time-display" id="timeDisplay">00:00:00.00</div>
-            <div class="status" id="statusText">Ready</div>
-        </div>
-        
+        <div class="header" id="dateDisplay"></div>
+
+        <div class="time-display" id="timeDisplay">00:00:00.00</div>
+        <div class="status" id="statusText">Ready</div>
+        <div class="stats" id="statsText">Ao5: -- | Ao12: -- | PB Today: --</div>
+
         <div class="lap-section">
-            <div class="lap-title">Lap Times</div>
-            <ul class="lap-list" id="lapList"></ul>
+            <ul id="lapList"></ul>
         </div>
+
+        <div class="calendar" id="calendar"></div>
     </div>
+
+    <button class="stop-btn">STOP</button>
+</div>
+
 <script>
-class Stopwatch {
-    constructor() {
-        this.startTime = 0;
-        this.elapsedTime = 0;
-        this.isRunning = false;
-        this.solveHistory = this.loadSolveHistory();
-        this.updateDateDisplay();
-
-        this.elements = {
-            timeDisplay: document.getElementById('timeDisplay'),
-            statusText: document.getElementById('statusText'),
-            statsText: document.getElementById('statsText'),
-            lapList: document.getElementById('lapList'),
-            startBtn: document.getElementById('startBtn'),
-            stopBtn: document.getElementById('stopBtn'),
-            dateDisplay: document.getElementById('dateDisplay')
-        };
-
-        this.initEvents();
-        this.renderStats();
-        this.renderLaps();
+class CubeTimer{
+    constructor(){
+        this.startTime=0;
+        this.elapsed=0;
+        this.running=false;
+        this.ready=false;
+        this.history=this.load();
+        this.bind();
+        this.updateDate();
+        this.render();
     }
 
-    /* ---------- Storage ---------- */
-    getTodayKey() {
+    bind(){
+        document.querySelector('.start-btn').onclick=()=>this.start();
+        document.querySelector('.stop-btn').onclick=()=>this.stop();
+
+        document.addEventListener('keydown',e=>{
+            if(e.code==='Space'&&!this.running){
+                this.ready=true;
+                statusText.textContent='Ready';
+            }
+        });
+
+        document.addEventListener('keyup',e=>{
+            if(e.code==='Space'){
+                if(this.running)this.stop();
+                else if(this.ready)this.start();
+                this.ready=false;
+            }
+        });
+    }
+
+    start(){
+        this.startTime=Date.now();
+        this.running=true;
+        statusText.textContent='Running';
+        requestAnimationFrame(()=>this.loop());
+    }
+
+    stop(){
+        if(!this.running)return;
+        this.running=false;
+        const sec=this.elapsed/1000;
+        if(sec<10){
+            statusText.textContent='Ignored (<10s)';
+            this.elapsed=0;
+            return;
+        }
+        const key=this.today();
+        this.history[key]=this.history[key]||[];
+        this.history[key].unshift(sec);
+        this.save();
+        statusText.textContent='Saved';
+        this.elapsed=0;
+        this.render();
+    }
+
+    loop(){
+        if(!this.running)return;
+        this.elapsed=Date.now()-this.startTime;
+        timeDisplay.textContent=this.format(this.elapsed/1000);
+        requestAnimationFrame(()=>this.loop());
+    }
+
+    format(s){
+        const m=Math.floor(s/60);
+        const sec=Math.floor(s%60);
+        const ms=Math.floor((s*100)%100);
+        return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}:${ms.toString().padStart(2,'0')}`;
+    }
+
+    today(){
         return new Date().toISOString().split('T')[0];
     }
 
-    loadSolveHistory() {
-        return JSON.parse(localStorage.getItem('solveHistory') || '{}');
+    average(arr,n){
+        if(arr.length<n)return null;
+        const slice=arr.slice(0,n).sort((a,b)=>a-b);
+        slice.pop();slice.shift();
+        return slice.reduce((a,b)=>a+b,0)/slice.length;
     }
 
-    saveSolveHistory() {
-        localStorage.setItem('solveHistory', JSON.stringify(this.solveHistory));
+    render(){
+        const t=this.today();
+        const solves=this.history[t]||[];
+
+        statsText.textContent=
+            `Ao5: ${this.average(solves,5)?.toFixed(2)||'--'} | `+
+            `Ao12: ${this.average(solves,12)?.toFixed(2)||'--'} | `+
+            `PB Today: ${solves.length?Math.min(...solves).toFixed(2):'--'}`;
+
+        lapList.innerHTML='';
+        solves.slice(0,8).forEach((s,i)=>{
+            lapList.innerHTML+=`<li class="lap-item"><span>#${i+1}</span><span>${this.format(s)}</span></li>`;
+        });
+
+        this.renderCalendar();
     }
 
-    /* ---------- Timer ---------- */
-    start() {
-        this.startTime = Date.now();
-        this.isRunning = true;
-        this.elements.statusText.textContent = 'Running';
-        this.loop();
-    }
+    renderCalendar(){
+        calendar.innerHTML='';
+        const now=new Date();
+        const year=now.getFullYear();
+        const month=now.getMonth();
+        const days=new Date(year,month+1,0).getDate();
 
-    stop() {
-        if (!this.isRunning) return;
-
-        this.isRunning = false;
-        const seconds = this.elapsedTime / 1000;
-
-    
-        if (seconds < 10) {
-            this.elements.statusText.textContent = 'Ignored (<10s)';
-            this.elapsedTime = 0;
-            this.updateDisplay();
-            return;
+        for(let d=1;d<=days;d++){
+            const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const div=document.createElement('div');
+            div.textContent=d;
+            if(this.history[key]){
+                div.classList.add('best');
+                div.textContent+=` ${Math.min(...this.history[key]).toFixed(1)}`;
+            }
+            calendar.appendChild(div);
         }
-
-        const today = this.getTodayKey();
-        if (!this.solveHistory[today]) this.solveHistory[today] = [];
-        this.solveHistory[today].unshift(seconds);
-
-        this.saveSolveHistory();
-        this.renderStats();
-        this.renderLaps();
-
-        this.elapsedTime = 0;
-        this.updateDisplay();
-        this.elements.statusText.textContent = 'Saved';
     }
 
-    loop() {
-        if (!this.isRunning) return;
-        this.elapsedTime = Date.now() - this.startTime;
-        this.updateDisplay();
-        requestAnimationFrame(() => this.loop());
+    updateDate(){
+        dateDisplay.textContent=new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+        setInterval(()=>this.updateDate(),60000);
     }
 
-    formatTime(sec) {
-        const m = Math.floor(sec / 60);
-        const s = Math.floor(sec % 60);
-        const ms = Math.floor((sec * 100) % 100);
-        return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}:${ms.toString().padStart(2,'0')}`;
-    }
-
-    updateDisplay() {
-        this.elements.timeDisplay.textContent = this.formatTime(this.elapsedTime / 1000);
-    }
-
-    /* ---------- Stats ---------- */
-    average(arr) {
-        if (arr.length === 0) return null;
-        const trimmed = arr.length >= 5
-            ? arr.slice(1, -1)
-            : arr;
-        return trimmed.reduce((a,b)=>a+b,0) / trimmed.length;
-    }
-
-    renderStats() {
-        const today = this.getTodayKey();
-        const solves = this.solveHistory[today] || [];
-
-        const ao5 = solves.length >= 5 ? this.average(solves.slice(0,5)) : null;
-        const ao12 = solves.length >= 12 ? this.average(solves.slice(0,12)) : null;
-        const pb = solves.length ? Math.min(...solves) : null;
-
-        this.elements.statsText.textContent =
-            `Ao5: ${ao5 ? ao5.toFixed(2) : '--'} | ` +
-            `Ao12: ${ao12 ? ao12.toFixed(2) : '--'} | ` +
-            `PB Today: ${pb ? pb.toFixed(2) : '--'}`;
-    }
-
-    /* ---------- UI ---------- */
-    renderLaps() {
-        const today = this.getTodayKey();
-        const solves = (this.solveHistory[today] || []).slice(0,8);
-
-        this.elements.lapList.innerHTML = '';
-        solves.forEach((s,i)=>{
-            const li = document.createElement('li');
-            li.className = 'lap-item';
-            li.innerHTML = `
-                <span class="lap-number">#${i+1}</span>
-                <span class="lap-time">${this.formatTime(s)}</span>
-            `;
-            this.elements.lapList.appendChild(li);
-        });
-    }
-
-    updateDateDisplay() {
-        const today = new Date();
-        const options = { month: 'short', day: 'numeric', year: 'numeric' };
-        this.elements.dateDisplay.textContent = today.toLocaleDateString(undefined, options);
-    }
-
-    
-    /* ---------- Events ---------- */
-    initEvents() {
-        // Buttons
-        this.elements.startBtn.onclick = () => this.start();
-        this.elements.stopBtn.onclick = () => this.stop();
-
-        // Cube-style spacebar
-        let ready = false;
-
-        document.addEventListener('keydown', e => {
-            if (e.code === 'Space' && !ready && !this.isRunning) {
-                ready = true;
-                this.elements.statusText.textContent = 'Ready';
-            }
-        });
-
-        document.addEventListener('keyup', e => {
-            if (e.code === 'Space') {
-                if (this.isRunning) this.stop();
-                else if (ready) this.start();
-                ready = false;
-            }
-        });
-    }
+    save(){localStorage.setItem('cubeTimer',JSON.stringify(this.history))}
+    load(){return JSON.parse(localStorage.getItem('cubeTimer')||'{}')}
 }
-setInterval(() => {
-    stopwatch.updateDateDisplay();
-}, 60000);
-    
-const stopwatch = new Stopwatch();
+
+const timer=new CubeTimer();
 </script>
 </body>
-</html>6
+</html>
