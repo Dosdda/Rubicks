@@ -17,10 +17,12 @@
             background: #30364F;
             height: 100vh;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             color: #ACBAC4;
             overflow: hidden;
             touch-action: manipulation;
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
 
         .header {
@@ -49,7 +51,7 @@
             background: linear-gradient(135deg, #E1D9BC, #F0F0DB);
             color: #30364F;
             font-family: 'Nunito', sans-serif;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -103,9 +105,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;
+            width: 420px;
             max-width: 400px;
-            height: 60%;
+            height: 84vh;
             background: rgba(48, 54, 79, 0.95);
             backdrop-filter: blur(30px);
             border-radius: 30px;
@@ -114,7 +116,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 40px 30px;
+            padding: 30px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.4);
             z-index: 20;
         }
@@ -142,7 +144,18 @@
             flex: 1;
             overflow-y: auto;
             padding-right: 10px;
+            scrollbar-width: thin;
         }
+
+        .lap-section::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .lap-section::-webkit-scrollbar-thumb {
+            background: rgba(225, 217, 188, 0.4);
+            border-radius: 10px;
+        }
+
 
         .lap-title {
             font-size: 16px;
@@ -243,7 +256,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="day-counter">Day <span id="dayCounter">1</span></div>
+        <div class="day-counter" id="dateDisplay"></div>
     </div>
 
     <div class="main-container">
@@ -262,8 +275,6 @@
             <ul class="lap-list" id="lapList"></ul>
         </div>
     </div>
-
-    <button class="clear-btn" id="clearBtn" title="Clear all laps">×</button>
 <script>
 class Stopwatch {
     constructor() {
@@ -271,6 +282,7 @@ class Stopwatch {
         this.elapsedTime = 0;
         this.isRunning = false;
         this.solveHistory = this.loadSolveHistory();
+        this.updateDateDisplay();
 
         this.elements = {
             timeDisplay: document.getElementById('timeDisplay'),
@@ -279,7 +291,7 @@ class Stopwatch {
             lapList: document.getElementById('lapList'),
             startBtn: document.getElementById('startBtn'),
             stopBtn: document.getElementById('stopBtn'),
-            clearBtn: document.getElementById('clearBtn')
+            dateDisplay: document.getElementById('dateDisplay')
         };
 
         this.initEvents();
@@ -393,20 +405,18 @@ class Stopwatch {
         });
     }
 
-    clearAll() {
-        if (!confirm('Clear all solves?')) return;
-        this.solveHistory = {};
-        this.saveSolveHistory();
-        this.renderStats();
-        this.renderLaps();
+    updateDateDisplay() {
+        const today = new Date();
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        this.elements.dateDisplay.textContent = today.toLocaleDateString(undefined, options);
     }
 
+    
     /* ---------- Events ---------- */
     initEvents() {
         // Buttons
         this.elements.startBtn.onclick = () => this.start();
         this.elements.stopBtn.onclick = () => this.stop();
-        this.elements.clearBtn.onclick = () => this.clearAll();
 
         // Cube-style spacebar
         let ready = false;
@@ -427,8 +437,11 @@ class Stopwatch {
         });
     }
 }
-
+setInterval(() => {
+    stopwatch.updateDateDisplay();
+}, 60000);
+    
 const stopwatch = new Stopwatch();
 </script>
 </body>
-</html>
+</html>6
