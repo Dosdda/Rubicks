@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Rubik’s Cube Timer</title>
-<link rel="icon" type="image/png" href="favicon.jpg">
+<link rel="icon" type="image/png" href="favicon.png">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-    font-family: -apple-system, BlinkMacSystemFont, "Nunito", sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,"Nunito",sans-serif;
     background:#30364F;
     color:#E1D9BC;
     height:100vh;
@@ -62,11 +62,17 @@ body{
     font-variant-numeric:tabular-nums;
 }
 
-.status,.stats{
+.status{
     text-align:center;
     font-size:14px;
     margin-bottom:6px;
     color:#ACBAC4;
+}
+
+.stats{
+    text-align:center;
+    font-size:14px;
+    margin-bottom:8px;
 }
 
 .lap-section{
@@ -116,7 +122,7 @@ body{
 
         <div class="time-display" id="timeDisplay">00:00:00.00</div>
         <div class="status" id="statusText">Ready</div>
-        <div class="stats" id="statsText">Ao5: -- | Ao12: -- | PB Today: --</div>
+        <div class="stats" id="statsText">PB Today: --</div>
 
         <div class="lap-section">
             <ul id="lapList"></ul>
@@ -172,15 +178,18 @@ class CubeTimer{
         if(!this.running)return;
         this.running=false;
         const sec=this.elapsed/1000;
+
         if(sec<10){
             statusText.textContent='Ignored (<10s)';
             this.elapsed=0;
             return;
         }
+
         const key=this.today();
         this.history[key]=this.history[key]||[];
         this.history[key].unshift(sec);
         this.save();
+
         statusText.textContent='Saved';
         this.elapsed=0;
         this.render();
@@ -204,25 +213,17 @@ class CubeTimer{
         return new Date().toISOString().split('T')[0];
     }
 
-    average(arr,n){
-        if(arr.length<n)return null;
-        const slice=arr.slice(0,n).sort((a,b)=>a-b);
-        slice.pop();slice.shift();
-        return slice.reduce((a,b)=>a+b,0)/slice.length;
-    }
-
     render(){
         const t=this.today();
         const solves=this.history[t]||[];
 
         statsText.textContent=
-            `Ao5: ${this.average(solves,5)?.toFixed(2)||'--'} | `+
-            `Ao12: ${this.average(solves,12)?.toFixed(2)||'--'} | `+
             `PB Today: ${solves.length?Math.min(...solves).toFixed(2):'--'}`;
 
         lapList.innerHTML='';
         solves.slice(0,8).forEach((s,i)=>{
-            lapList.innerHTML+=`<li class="lap-item"><span>#${i+1}</span><span>${this.format(s)}</span></li>`;
+            lapList.innerHTML+=
+                `<li class="lap-item"><span>#${i+1}</span><span>${this.format(s)}</span></li>`;
         });
 
         this.renderCalendar();
@@ -248,7 +249,9 @@ class CubeTimer{
     }
 
     updateDate(){
-        dateDisplay.textContent=new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+        dateDisplay.textContent=new Date().toLocaleDateString(undefined,{
+            month:'short',day:'numeric',year:'numeric'
+        });
         setInterval(()=>this.updateDate(),60000);
     }
 
